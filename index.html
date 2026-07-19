@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Wealth Gap Calculator — Money with Simone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    :root {
+      --qc-cream:      #FBF3E4;
+      --qc-cream-soft: #FBF7EE;
+      --qc-navy:       #0A0F1E;
+      --qc-gold:       #C9A227;
+      --qc-gold-deep:  #A8791F;
+      --qc-aqua:       #D98F95;
+      --qc-aqua-deep:  #B8676E;
+      --qc-aqua-light: #E8B4B8;
+      --qc-aqua-soft:  #F7E3E1;
+      --qc-rule:       #D9CFB8;
+      --qc-terracotta: #C5664E;
+      --qc-sage:       #9CAE7C;
+      --qc-sage-deep:  #5C7A46;
+      --qc-gold-chip:  #F3DFA6;
+      --qc-sage-chip:  #CFE0C3;
+      --qc-teal:       #1F8A99;
+      --qc-teal-deep:  #196f7a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--qc-cream);
+      color: var(--qc-navy);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Masthead ── */
+    .masthead { background: var(--qc-cream); }
+
+    .masthead-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 60px 40px 0;
+      display: flex;
+      align-items: flex-end;
+      gap: 20px;
+    }
+
+    .masthead-text {
+      flex: 1;
+      min-width: 0;
+      padding-bottom: 48px;
+    }
+
+    .masthead-eyebrow {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: var(--qc-aqua);
+      margin-bottom: 18px;
+    }
+
+    .masthead-title {
+      font-family: 'Kalam', cursive;
+      font-weight: 700;
+      font-size: clamp(36px, 5vw, 56px);
+      line-height: 1.1;
+      color: var(--qc-navy);
+      margin-bottom: 18px;
+    }
+
+    .masthead-tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 23px;
+      color: var(--qc-navy);
+      max-width: 440px;
+      line-height: 1.6;
+    }
+
+    .masthead-portrait {
+      width: 250px;
+      flex-shrink: 0;
+      align-self: flex-end;
+    }
+
+    .masthead-portrait img {
+      width: 100%;
+      display: block;
+      mix-blend-mode: multiply;
+    }
+
+    .masthead-gold-rule::after {
+      content: '';
+      display: block;
+      height: 3px;
+      background: linear-gradient(90deg, var(--qc-gold-deep), var(--qc-gold) 45%, var(--qc-gold-chip) 75%, var(--qc-gold-deep));
+    }
+
+    /* ── Trust chips (banner icon-badge echo) ── */
+    .trust-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 28px;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 40px 28px;
+    }
+
+    @media (max-width: 520px) { .trust-row { padding: 18px 24px 20px; gap: 10px 18px; } }
+
+    .trust-chip {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: rgba(10, 15, 30, 0.78);
+    }
+
+    .trust-chip-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    .trust-chip-icon svg { width: 14px; height: 14px; }
+
+    .trust-chip--blush .trust-chip-icon { background: var(--qc-aqua-light); color: var(--qc-aqua-deep); }
+    .trust-chip--gold  .trust-chip-icon { background: var(--qc-gold-chip); color: var(--qc-gold-deep); }
+    .trust-chip--sage  .trust-chip-icon { background: var(--qc-sage-chip); color: var(--qc-sage-deep); }
+
+    @media (max-width: 520px) {
+      .masthead-inner { flex-direction: column-reverse; gap: 0; align-items: flex-start; padding: 40px 24px 0; }
+      .masthead-portrait { width: 150px; }
+      .masthead-text { padding-bottom: 24px; }
+      .masthead-gold-rule { padding: 0 24px; }
+    }
+
+    /* ── Page ── */
+    .page {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 40px 96px;
+    }
+
+    @media (max-width: 520px) { .page { padding: 0 24px 64px; } }
+
+
+    /* ── Sections ── */
+    .section {
+      padding: 52px 0 52px 28px;
+      border-bottom: 3px solid var(--qc-rule);
+    }
+
+    /* ── Section header ── */
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 32px;
+      border-left: 3px solid var(--qc-rule);
+      margin-left: -28px;
+      padding-left: 25px;
+    }
+
+    .section--start .section-head { border-left-color: var(--qc-teal); }
+    .section--d1 .section-head    { border-left-color: var(--qc-terracotta); }
+    .section--d2 .section-head    { border-left-color: var(--qc-sage); }
+    .section--d3 .section-head    { border-left-color: var(--qc-gold); }
+    .section--d4 .section-head    { border-left-color: var(--qc-aqua); }
+
+    .section-head-text { flex: 1; min-width: 0; }
+
+    .section-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 72px;
+      line-height: 1;
+      color: var(--qc-gold);
+      opacity: 0.20;
+      flex-shrink: 0;
+      padding-top: 2px;
+      user-select: none;
+    }
+
+    /* ── Eyebrow rule ── */
+    .eyebrow-rule {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--qc-aqua);
+      margin-bottom: 10px;
+    }
+
+    .eyebrow-rule::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 1.5px;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    .eyebrow-rule--terra { color: #ffffff; background: var(--qc-terracotta); padding: 3px 10px; border-radius: 3px; }
+    .eyebrow-rule--terra::before { display: none; }
+    .eyebrow-rule--sage  { color: #ffffff; background: var(--qc-sage); padding: 3px 10px; border-radius: 3px; }
+    .eyebrow-rule--sage::before  { display: none; }
+    .eyebrow-rule--gold  { color: #ffffff; background: var(--qc-gold); padding: 3px 10px; border-radius: 3px; }
+    .eyebrow-rule--gold::before  { display: none; }
+
+    .section--start .eyebrow-rule { background: var(--qc-teal); color: #ffffff; border: 1.5px solid var(--qc-teal); padding: 3px 10px; border-radius: 3px; }
+    .section--start .eyebrow-rule::before { display: none; }
+
+    .section--d4 .eyebrow-rule { background: var(--qc-aqua); color: #ffffff; padding: 3px 10px; border-radius: 3px; }
+    .section--d4 .eyebrow-rule::before { display: none; }
+
+    /* ── Section title & desc ── */
+    .section h2 {
+      font-family: 'Kalam', cursive;
+      font-weight: 700;
+      font-size: clamp(32px, 5.5vw, 46px);
+      color: var(--qc-navy);
+      margin-bottom: 10px;
+    }
+
+    .section-desc {
+      font-size: 14px;
+      color: rgba(10, 15, 30, 0.68);
+      line-height: 1.75;
+      max-width: 520px;
+    }
+
+    /* ── Field pair (baseline & D2 age) ── */
+    .field-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 480px) { .field-pair { grid-template-columns: 1fr; } }
+
+    .field { display: flex; flex-direction: column; gap: 8px; }
+
+    .field label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: rgba(10, 15, 30, 0.75);
+    }
+
+    .field label span { font-weight: 400; opacity: 0.70; }
+
+    .input-shell {
+      display: flex;
+      align-items: stretch;
+      border: 1px solid var(--qc-rule);
+      border-radius: 3px;
+      background: var(--qc-cream);
+      height: 48px;
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+
+    .input-shell:focus-within { border-color: var(--qc-teal); background: #fff; }
+
+    .shell-suffix {
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      color: rgba(10, 15, 30, 0.40);
+      border-left: 1px solid var(--qc-rule);
+      user-select: none;
+    }
+
+    .input-shell input[type="number"] {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 0 16px;
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: var(--qc-navy);
+      outline: none;
+      min-width: 0;
+      -moz-appearance: textfield;
+    }
+
+    .input-shell input[type="number"]::-webkit-outer-spin-button,
+    .input-shell input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    /* ── Range slider ── */
+    .range-block { display: flex; flex-direction: column; gap: 10px; }
+
+    .range-block-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .range-block-header label {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(10, 15, 30, 0.75);
+    }
+
+    .range-current {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: var(--qc-gold);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--qc-teal);
+      cursor: pointer;
+      height: 4px;
+    }
+
+    .range-ticks {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: rgba(10, 15, 30, 0.72);
+    }
+
+    /* ── Ledger rows ── */
+    .ledger { border-top: 1px solid var(--qc-rule); }
+
+    .ledger-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--qc-rule);
+    }
+
+    .ledger-label-group { flex: 1; min-width: 0; }
+
+    .ledger-label {
+      display: block;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: rgba(10, 15, 30, 0.88);
+      line-height: 1.3;
+    }
+
+    .ledger-hint {
+      display: block;
+      font-size: 11.5px;
+      color: rgba(10, 15, 30, 0.48);
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    .ledger-input {
+      display: flex;
+      align-items: stretch;
+      width: 108px;
+      flex-shrink: 0;
+      height: 40px;
+      border: 1px solid var(--qc-rule);
+      border-radius: 3px;
+      overflow: hidden;
+      background: var(--qc-cream);
+      transition: border-color 0.15s;
+    }
+
+    .ledger-input:focus-within { border-color: var(--qc-aqua); background: #fff; }
+
+    .ledger-prefix {
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      color: var(--qc-gold);
+      border-right: 1px solid var(--qc-rule);
+      background: rgba(201, 162, 39, 0.09);
+      user-select: none;
+    }
+
+    .ledger-input input[type="number"] {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 0 10px;
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      color: var(--qc-navy);
+      outline: none;
+      min-width: 0;
+      -moz-appearance: textfield;
+    }
+
+    .ledger-input input::-webkit-outer-spin-button,
+    .ledger-input input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    /* ── Ledger column headers ── */
+    .ledger-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 16px 0 10px;
+    }
+
+    .ledger-header-spacer { flex: 1; }
+
+    .ledger-header-col {
+      width: 108px;
+      flex-shrink: 0;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--qc-navy);
+      text-align: center;
+      background: rgba(10, 15, 30, 0.06);
+      border: 1px solid rgba(10, 15, 30, 0.14);
+      border-radius: 3px;
+      padding: 5px 0;
+    }
+
+    /* ── Dual-input wrapper ── */
+    .ledger-inputs { display: flex; gap: 8px; flex-shrink: 0; }
+
+    /* ── Total right-side block ── */
+    .ledger-total-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+
+    .ledger-total-context {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: rgba(10, 15, 30, 0.65);
+      letter-spacing: 0.01em;
+    }
+
+    /* ── Section-tinted column headers ── */
+    .section--d1 .ledger-header-col {
+      background: var(--qc-terracotta);
+      border-color: var(--qc-terracotta);
+      color: #ffffff;
+    }
+
+    .section--d3 .ledger-header-col {
+      background: var(--qc-gold);
+      border-color: var(--qc-gold);
+      color: #ffffff;
+    }
+
+    .section--d4 .ledger-header-col {
+      background: var(--qc-aqua);
+      border-color: var(--qc-aqua);
+      color: #ffffff;
+    }
+
+    @media (max-width: 520px) {
+      .ledger-header-col { width: 84px; }
+    }
+
+    /* ── Monthly total ── */
+    .ledger-total {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 18px 16px 14px;
+      background: rgba(201, 162, 39, 0.09);
+      border-radius: 3px;
+      border: 1px solid var(--qc-rule);
+      margin-top: 4px;
+    }
+
+    .ledger-total-label {
+      font-family: 'Kalam', cursive;
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--qc-navy);
+    }
+
+    .ledger-total-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 40px;
+      color: var(--qc-gold);
+    }
+
+    /* ── Account reference ── */
+    .invest-ref {
+      margin-top: 28px;
+      border-top: 1px solid var(--qc-rule);
+    }
+
+    .invest-ref summary {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 14px 0 0;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--qc-sage);
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      width: fit-content;
+    }
+
+    .invest-ref summary::-webkit-details-marker { display: none; }
+
+    .invest-ref-chevron {
+      display: inline-block;
+      transition: transform 0.22s ease;
+      font-style: normal;
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .invest-ref[open] .invest-ref-chevron { transform: rotate(180deg); }
+
+    .invest-ref-body {
+      margin-top: 20px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .invest-ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      min-width: 480px;
+    }
+
+    .invest-ref-table th {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: rgba(10, 15, 30, 0.65);
+      padding: 0 16px 10px 0;
+      text-align: left;
+      border-bottom: 1px solid var(--qc-rule);
+      white-space: nowrap;
+    }
+
+    .invest-ref-table th:last-child { padding-right: 0; }
+
+    .invest-ref-table td {
+      padding: 11px 16px 11px 0;
+      border-bottom: 1px solid rgba(217, 207, 184, 0.45);
+      vertical-align: top;
+      color: rgba(10, 15, 30, 0.72);
+      line-height: 1.5;
+    }
+
+    .invest-ref-table td:last-child { padding-right: 0; }
+    .invest-ref-table tr:last-child td { border-bottom: none; }
+    .ref-account { font-weight: 600; color: var(--qc-navy); white-space: nowrap; }
+    .ref-limit { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--qc-gold); white-space: nowrap; }
+
+    /* ── Results ── */
+    .results { padding-top: 64px; }
+
+    .results-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 48px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(10, 15, 30, 0.65);
+      white-space: nowrap;
+    }
+
+    .results-divider::before,
+    .results-divider::after {
+      content: '';
+      flex: 1;
+      height: 3px;
+      background: rgba(10, 15, 30, 0.35);
+    }
+
+    .gap-label {
+      font-family: 'Kalam', cursive;
+      font-weight: 700;
+      font-size: clamp(42px, 9vw, 64px);
+      color: var(--qc-aqua-deep);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .gap-amount {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(72px, 16vw, 120px);
+      line-height: 1;
+      color: var(--qc-gold);
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .gap-caption {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 22px;
+      color: var(--qc-navy);
+      margin-bottom: 56px;
+      padding-bottom: 52px;
+      border-bottom: 3px solid var(--qc-rule);
+      text-align: center;
+    }
+
+    /* ── Breakdown ── */
+    .breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-bottom: 52px;
+    }
+
+    .breakdown-row { display: flex; flex-direction: column; gap: 10px; }
+
+    .breakdown-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .breakdown-name { font-size: 13px; font-weight: 600; color: rgba(10, 15, 30, 0.82); }
+
+    .breakdown-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: var(--qc-gold);
+      flex-shrink: 0;
+    }
+
+    .breakdown-num--highlight { color: var(--qc-terracotta); }
+
+    .bar-track { height: 3px; background: var(--qc-rule); border-radius: 2px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--qc-gold); border-radius: 2px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+    .bar-fill--highlight { background: var(--qc-terracotta); }
+
+    /* ── Chart ── */
+    .chart-section { margin-bottom: 64px; }
+
+    .chart-label {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--qc-navy);
+      margin-bottom: 16px;
+    }
+
+    .chart-wrap { height: 268px; }
+
+    /* ── CTA ── */
+    .hairline {
+      display: block;
+      width: 80px;
+      height: 2px;
+      background: var(--qc-gold);
+      margin: 0 auto 52px;
+    }
+
+    .cta {
+      background: var(--qc-teal);
+      border-radius: 4px;
+      padding: 56px 44px;
+      text-align: center;
+    }
+
+    .cta-eyebrow {
+      display: inline-block;
+      font-family: 'Kalam', cursive;
+      font-weight: 700;
+      font-size: 21px;
+      letter-spacing: 0.01em;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .cta h2 {
+      font-family: 'Kalam', cursive;
+      font-weight: 700;
+      font-size: 40px;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+
+    .cta p {
+      font-size: 15px;
+      color: rgba(246, 241, 230, 0.85);
+      margin-bottom: 28px;
+      max-width: 380px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.7;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 40px;
+      background: #ffffff;
+      color: var(--qc-navy);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+      letter-spacing: 0.01em;
+    }
+
+    .btn:hover { background: var(--qc-navy); color: #fff; }
+
+    .cta-secondary {
+      display: block;
+      margin-top: 14px;
+      font-size: 14px;
+      color: rgba(246, 241, 230, 0.80);
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 3px solid rgba(201, 162, 39, 0.65);
+      text-align: center;
+      font-size: 12px;
+      color: rgba(10, 15, 30, 0.82);
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Masthead -->
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-text">
+      <p class="masthead-eyebrow">Money with Simone</p>
+      <h1 class="masthead-title">The Wealth Gap<br>Calculator</h1>
+      <p class="masthead-tagline">Enter your numbers. See what your spending decisions are actually costing you — in future dollars.</p>
+    </div>
+    <div class="masthead-portrait">
+      <img src="Simone-new-full.png" alt="Simone">
+    </div>
+  </div>
+  <div class="masthead-gold-rule"></div>
+  <div class="trust-row">
+    <div class="trust-chip trust-chip--blush">
+      <span class="trust-chip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="1.5"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span>
+      <span>Private — nothing you enter is stored</span>
+    </div>
+    <div class="trust-chip trust-chip--gold">
+      <span class="trust-chip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 14h6l-1 7 9-12h-6z"></path></svg></span>
+      <span>Updates live as you type</span>
+    </div>
+    <div class="trust-chip trust-chip--sage">
+      <span class="trust-chip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 4 13c0-5 5-10 8-10s8 5 8 10a7 7 0 0 1-7 7"></path><path d="M11 20v-6a4 4 0 0 1 4-4"></path></svg></span>
+      <span>Real compounding math</span>
+    </div>
+  </div>
+</div>
+
+<main class="page">
+
+  <!-- Start here -->
+  <section class="section section--start">
+    <div class="section-head">
+      <div class="section-head-text">
+        <p class="eyebrow-rule">Start here</p>
+        <h2>Your baseline</h2>
+        <p class="section-desc">Enter your age and when you'd like to stop working. The return rate is how fast your invested money grows each year — 7% is what a basic stock market index fund has historically averaged over the long term. Lower it if you want a more conservative estimate.</p>
+      </div>
+    </div>
+    <div class="field-pair">
+      <div class="field">
+        <label>Your current age</label>
+        <div class="input-shell">
+          <input type="number" id="currentAge" value="30" min="18" max="64">
+          <span class="shell-suffix">YRS</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Age you want to retire</label>
+        <div class="input-shell">
+          <input type="number" id="retirementAge" value="60" min="35" max="80">
+          <span class="shell-suffix">YRS</span>
+        </div>
+      </div>
+    </div>
+    <div class="range-block">
+      <div class="range-block-header">
+        <label>Expected annual investment return</label>
+        <span class="range-current" id="returnRateDisplay">7%</span>
+      </div>
+      <input type="range" id="returnRate" min="4" max="10" step="0.5" value="7">
+      <div class="range-ticks">
+        <span>4% — conservative</span>
+        <span>7% — historical avg</span>
+        <span>10% — aggressive</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Decision 1 -->
+  <section class="section section--d1">
+    <div class="section-head">
+      <div class="section-head-text">
+        <p class="eyebrow-rule eyebrow-rule--terra">Decision 1</p>
+        <h2>Monthly recurring costs</h2>
+        <p class="section-desc">For each category, enter what you pay now — then what you'd pay if you upgraded to the premium option. The difference is what feeds into your opportunity cost.</p>
+      </div>
+      <span class="section-num">01</span>
+    </div>
+    <div class="ledger">
+      <div class="ledger-header">
+        <div class="ledger-header-spacer"></div>
+        <div class="ledger-inputs">
+          <span class="ledger-header-col">Now</span>
+          <span class="ledger-header-col">Upgrade</span>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Car payment or lease</span>
+          <span class="ledger-hint">monthly payment, insurance, lease</span>
+        </div>
+        <div class="ledger-inputs">
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="exp-car-now" value="0" min="0" max="5000" step="10" placeholder="0"></div>
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="exp-car-up" value="0" min="0" max="5000" step="10" placeholder="0"></div>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Streaming &amp; subscriptions</span>
+          <span class="ledger-hint">Netflix, Spotify, Apple TV, Disney+, etc.</span>
+        </div>
+        <div class="ledger-inputs">
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="exp-streaming-now" value="0" min="0" max="500" step="1" placeholder="0"></div>
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="exp-streaming-up" value="0" min="0" max="500" step="1" placeholder="0"></div>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Gym &amp; fitness</span>
+          <span class="ledger-hint">membership, classes, apps, equipment</span>
+        </div>
+        <div class="ledger-inputs">
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="exp-fitness-now" value="0" min="0" max="1000" step="5" placeholder="0"></div>
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="exp-fitness-up" value="0" min="0" max="1000" step="5" placeholder="0"></div>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Food delivery</span>
+          <span class="ledger-hint">DoorDash, Uber Eats, Instacart, meal kits</span>
+        </div>
+        <div class="ledger-inputs">
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="exp-delivery-now" value="0" min="0" max="2000" step="10" placeholder="0"></div>
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="exp-delivery-up" value="0" min="0" max="2000" step="10" placeholder="0"></div>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Other recurring costs</span>
+          <span class="ledger-hint">anything else that renews monthly</span>
+        </div>
+        <div class="ledger-inputs">
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="exp-other-now" value="0" min="0" max="5000" step="10" placeholder="0"></div>
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="exp-other-up" value="0" min="0" max="5000" step="10" placeholder="0"></div>
+        </div>
+      </div>
+    </div>
+    <div class="ledger-total">
+      <span class="ledger-total-label">Monthly difference</span>
+      <div class="ledger-total-right">
+        <span class="ledger-total-value" id="exp-total-diff">$0</span>
+        <span class="ledger-total-context" id="exp-total-context">Now $0 → Upgrade $0</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Decision 2 -->
+  <section class="section section--d2">
+    <div class="section-head">
+      <div class="section-head-text">
+        <p class="eyebrow-rule eyebrow-rule--sage">Decision 2</p>
+        <h2>When you started investing</h2>
+        <p class="section-desc">Money invested in your 20s has decades to compound on its own. We use age 25 as the baseline. Enter when you started, then break down your monthly contributions by account type — each vehicle has different tax treatment, but they all compound the same way.</p>
+      </div>
+      <span class="section-num">02</span>
+    </div>
+    <div class="field-pair" style="margin-bottom: 28px;">
+      <div class="field">
+        <label>Age you started investing <span>(or plan to)</span></label>
+        <div class="input-shell">
+          <input type="number" id="investStartAge" value="35" min="18" max="65">
+          <span class="shell-suffix">YRS</span>
+        </div>
+      </div>
+    </div>
+    <div class="ledger">
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">401(k) or 403(b)</span>
+          <span class="ledger-hint">employer-sponsored; many include a match — that's immediate return on principal</span>
+        </div>
+        <div class="ledger-input">
+          <span class="ledger-prefix">$</span>
+          <input type="number" id="invest-401k" value="0" min="0" max="10000" step="50" placeholder="0">
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Roth IRA</span>
+          <span class="ledger-hint">contributions grow tax-free; $625/mo is the 2026 annual max</span>
+        </div>
+        <div class="ledger-input">
+          <span class="ledger-prefix">$</span>
+          <input type="number" id="invest-roth" value="0" min="0" max="650" step="25" placeholder="0">
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Traditional IRA</span>
+          <span class="ledger-hint">tax-deferred growth; same $7,500 annual limit as Roth</span>
+        </div>
+        <div class="ledger-input">
+          <span class="ledger-prefix">$</span>
+          <input type="number" id="invest-ira" value="0" min="0" max="650" step="25" placeholder="0">
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">HSA</span>
+          <span class="ledger-hint">triple tax advantage — often overlooked as a long-term investment vehicle</span>
+        </div>
+        <div class="ledger-input">
+          <span class="ledger-prefix">$</span>
+          <input type="number" id="invest-hsa" value="0" min="0" max="700" step="25" placeholder="0">
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Brokerage account</span>
+          <span class="ledger-hint">no contribution limits; fully flexible; gains are taxable</span>
+        </div>
+        <div class="ledger-input">
+          <span class="ledger-prefix">$</span>
+          <input type="number" id="invest-brokerage" value="0" min="0" max="20000" step="50" placeholder="0">
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Other investments</span>
+          <span class="ledger-hint">REITs, I-bonds, real estate equity, anything else that compounds</span>
+        </div>
+        <div class="ledger-input">
+          <span class="ledger-prefix">$</span>
+          <input type="number" id="invest-other" value="0" min="0" max="20000" step="50" placeholder="0">
+        </div>
+      </div>
+    </div>
+    <div class="ledger-total">
+      <span class="ledger-total-label">Monthly total</span>
+      <span class="ledger-total-value" id="invest-total">$0</span>
+    </div>
+    <details class="invest-ref">
+      <summary>Account reference <span class="invest-ref-chevron">▾</span></summary>
+      <div class="invest-ref-body">
+        <table class="invest-ref-table">
+          <thead>
+            <tr>
+              <th>Account</th>
+              <th>Tax treatment</th>
+              <th>2026 limit</th>
+              <th>Worth knowing</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="ref-account">401(k) / 403(b)</td>
+              <td>Pre-tax or Roth option</td>
+              <td class="ref-limit">$24,500</td>
+              <td>Contribute at least enough to capture the employer match — that's an immediate 50–100% return on those dollars.</td>
+            </tr>
+            <tr>
+              <td class="ref-account">Roth IRA</td>
+              <td>After-tax in, tax-free out</td>
+              <td class="ref-limit">$7,500</td>
+              <td>Income limit phases out above $153K single / $242K married. Best used when you expect to be in a higher bracket later.</td>
+            </tr>
+            <tr>
+              <td class="ref-account">Traditional IRA</td>
+              <td>Tax-deferred</td>
+              <td class="ref-limit">$7,500</td>
+              <td>Deductibility depends on income and whether you have a workplace plan. Taxed as ordinary income on withdrawal.</td>
+            </tr>
+            <tr>
+              <td class="ref-account">HSA</td>
+              <td>Pre-tax in, tax-free growth, tax-free out</td>
+              <td class="ref-limit">$4,400 ind. / $8,750 fam.</td>
+              <td>Requires a high-deductible health plan. Invest the balance — it becomes a stealth retirement account after 65.</td>
+            </tr>
+            <tr>
+              <td class="ref-account">Brokerage</td>
+              <td>Taxable gains</td>
+              <td class="ref-limit">No limit</td>
+              <td>Long-term capital gains rate applies if held over one year — meaningfully lower than ordinary income tax.</td>
+            </tr>
+            <tr>
+              <td class="ref-account">Other</td>
+              <td>Varies</td>
+              <td class="ref-limit">Varies</td>
+              <td>REITs, I-bonds, real estate equity, and similar. Include any vehicle where your money is working rather than sitting.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <!-- Decision 3 -->
+  <section class="section section--d3">
+    <div class="section-head">
+      <div class="section-head-text">
+        <p class="eyebrow-rule eyebrow-rule--gold">Decision 3</p>
+        <h2>Housing upgrade</h2>
+        <p class="section-desc">For each line, enter what you pay now — then what a nicer option would cost. The difference shows what each upgrade decision is worth over time.</p>
+      </div>
+      <span class="section-num">03</span>
+    </div>
+    <div class="ledger">
+      <div class="ledger-header">
+        <div class="ledger-header-spacer"></div>
+        <div class="ledger-inputs">
+          <span class="ledger-header-col">Now</span>
+          <span class="ledger-header-col">Upgrade</span>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Rent or mortgage</span>
+          <span class="ledger-hint">current payment vs. the nicer place you're considering</span>
+        </div>
+        <div class="ledger-inputs">
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="housing-rent-now" value="0" min="0" max="10000" step="50" placeholder="0"></div>
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="housing-rent-up" value="0" min="0" max="10000" step="50" placeholder="0"></div>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Parking</span>
+          <span class="ledger-hint">reserved garage, valet, or paid lot</span>
+        </div>
+        <div class="ledger-inputs">
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="housing-parking-now" value="0" min="0" max="1000" step="10" placeholder="0"></div>
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="housing-parking-up" value="0" min="0" max="1000" step="10" placeholder="0"></div>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Utilities</span>
+          <span class="ledger-hint">current bills vs. a bigger or nicer space</span>
+        </div>
+        <div class="ledger-inputs">
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="housing-utilities-now" value="0" min="0" max="1000" step="10" placeholder="0"></div>
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="housing-utilities-up" value="0" min="0" max="1000" step="10" placeholder="0"></div>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Other housing costs</span>
+          <span class="ledger-hint">storage unit, HOA premium, cleaning service</span>
+        </div>
+        <div class="ledger-inputs">
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="housing-other-now" value="0" min="0" max="5000" step="50" placeholder="0"></div>
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="housing-other-up" value="0" min="0" max="5000" step="50" placeholder="0"></div>
+        </div>
+      </div>
+    </div>
+    <div class="ledger-total">
+      <span class="ledger-total-label">Monthly difference</span>
+      <div class="ledger-total-right">
+        <span class="ledger-total-value" id="housing-total-diff">$0</span>
+        <span class="ledger-total-context" id="housing-total-context">Now $0 → Upgrade $0</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Decision 4 -->
+  <section class="section section--d4">
+    <div class="section-head">
+      <div class="section-head-text">
+        <p class="eyebrow-rule">Decision 4</p>
+        <h2>Lifestyle creep</h2>
+        <p class="section-desc">For each category, enter what you spend now — then what you'd spend if you leaned into the nicer option. The difference shows what each incremental decision compounds into.</p>
+      </div>
+      <span class="section-num">04</span>
+    </div>
+    <div class="ledger">
+      <div class="ledger-header">
+        <div class="ledger-header-spacer"></div>
+        <div class="ledger-inputs">
+          <span class="ledger-header-col">Now</span>
+          <span class="ledger-header-col">Could spend</span>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Dining out &amp; restaurants</span>
+          <span class="ledger-hint">current monthly spend vs. nicer restaurants</span>
+        </div>
+        <div class="ledger-inputs">
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="creep-dining-now" value="0" min="0" max="3000" step="10" placeholder="0"></div>
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="creep-dining-up" value="0" min="0" max="3000" step="10" placeholder="0"></div>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Coffee shops &amp; takeout</span>
+          <span class="ledger-hint">current spend vs. daily coffee runs, lunch out</span>
+        </div>
+        <div class="ledger-inputs">
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="creep-coffee-now" value="0" min="0" max="1000" step="5" placeholder="0"></div>
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="creep-coffee-up" value="0" min="0" max="1000" step="5" placeholder="0"></div>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Shopping</span>
+          <span class="ledger-hint">clothes, home goods, tech, beauty, accessories</span>
+        </div>
+        <div class="ledger-inputs">
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="creep-shopping-now" value="0" min="0" max="3000" step="25" placeholder="0"></div>
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="creep-shopping-up" value="0" min="0" max="3000" step="25" placeholder="0"></div>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Travel &amp; weekend plans</span>
+          <span class="ledger-hint">trips, hotels, concerts, events, activities</span>
+        </div>
+        <div class="ledger-inputs">
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="creep-travel-now" value="0" min="0" max="3000" step="25" placeholder="0"></div>
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="creep-travel-up" value="0" min="0" max="3000" step="25" placeholder="0"></div>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label-group">
+          <span class="ledger-label">Other lifestyle spending</span>
+          <span class="ledger-hint">anything else with a noticeable gap between levels</span>
+        </div>
+        <div class="ledger-inputs">
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="creep-other-now" value="0" min="0" max="5000" step="25" placeholder="0"></div>
+          <div class="ledger-input"><span class="ledger-prefix">$</span><input type="number" id="creep-other-up" value="0" min="0" max="5000" step="25" placeholder="0"></div>
+        </div>
+      </div>
+    </div>
+    <div class="ledger-total">
+      <span class="ledger-total-label">Monthly difference</span>
+      <div class="ledger-total-right">
+        <span class="ledger-total-value" id="creep-total-diff">$0</span>
+        <span class="ledger-total-context" id="creep-total-context">Now $0 → Could spend $0</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <div class="results">
+    <div class="results-divider">The gap</div>
+
+    <p class="gap-label">The gap</p>
+    <p class="gap-amount" id="totalGap">—</p>
+    <p class="gap-caption">projected wealth left on the table by age <span id="retirementAgeDisplay">60</span>, at the return rate shown</p>
+
+    <div class="breakdown" id="breakdown"></div>
+
+    <div class="chart-section">
+      <p class="chart-label">How the opportunity cost grows — age <span id="chartFrom">30</span> to <span id="chartTo">60</span></p>
+      <div class="chart-wrap">
+        <canvas id="chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <span class="hairline"></span>
+
+  <!-- CTA -->
+  <div class="cta">
+    <p class="cta-eyebrow">Money with Simone</p>
+    <h2>Subscribe if this is worth knowing.</h2>
+    <p>New videos on wealth, decisions, and the long arc — clear, no-hype, and worth your time.</p>
+    <a href="#" class="btn">Subscribe on YouTube</a>
+    <span class="cta-secondary">Newsletter coming soon.</span>
+  </div>
+
+  <footer>
+    <p>Money with Simone</p>
+    <p>Projections assume consistent monthly contributions compounded monthly at the annual return rate shown.<br>Past market performance does not guarantee future results. This tool is for educational purposes only.</p>
+    <p>Everything above is calculated in your browser. Your entries are never stored or sent anywhere.</p>
+  </footer>
+
+</main>
+<script>
+  const OPTIMAL_START = 25;
+
+  function fv(pmt, annualRate, years) {
+    if (years <= 0 || pmt <= 0) return 0;
+    const r = annualRate / 100 / 12;
+    const n = Math.max(0, Math.round(years * 12));
+    if (r === 0) return pmt * n;
+    return pmt * ((Math.pow(1 + r, n) - 1) / r);
+  }
+
+  function delayAt(pmt, rate, atAge, startAge) {
+    const opt = Math.max(0, atAge - OPTIMAL_START);
+    const act = Math.max(0, atAge - Math.max(startAge, OPTIMAL_START));
+    return Math.max(0, fv(pmt, rate, opt) - fv(pmt, rate, act));
+  }
+
+  function fmt(n) {
+    if (n >= 1_000_000) {
+      const m = n / 1_000_000;
+      return '$' + (m % 1 === 0 ? m.toFixed(0) : m.toFixed(2).replace(/\.?0+$/, '')) + 'M';
+    }
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+
+  function fmtShort(n) {
+    if (n >= 1_000_000) return '$' + (n / 1_000_000).toFixed(1) + 'M';
+    if (n >= 1_000)     return '$' + Math.round(n / 1_000) + 'K';
+    return '$' + Math.round(n);
+  }
+
+  function getVal(id) {
+    return Math.max(0, parseFloat(document.getElementById(id)?.value) || 0);
+  }
+
+  function sumAndDisplay(ids, displayId) {
+    const total = ids.reduce((sum, id) => sum + getVal(id), 0);
+    const el = document.getElementById(displayId);
+    if (el) el.textContent = '$' + Math.round(total).toLocaleString('en-US');
+    return total;
+  }
+
+  function sumDiffAndDisplay(nowIds, upIds, diffId, contextId, upgradeLabel) {
+    const fmt2 = n => '$' + Math.round(n).toLocaleString('en-US');
+    const nowTotal = nowIds.reduce((s, id) => s + getVal(id), 0);
+    const upTotal  = upIds.reduce((s, id) => s + getVal(id), 0);
+    const diff     = Math.max(0, upTotal - nowTotal);
+    const el = document.getElementById(diffId);
+    if (el) el.textContent = fmt2(diff);
+    const ctx = document.getElementById(contextId);
+    if (ctx) ctx.textContent = 'Now ' + fmt2(nowTotal) + ' → ' + (upgradeLabel || 'Upgrade') + ' ' + fmt2(upTotal);
+    return diff;
+  }
+
+  let chart;
+  function initChart() {
+    const ctx = document.getElementById('chart').getContext('2d');
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Opportunity cost',
+          data: [],
+          borderColor: '#D98F95',
+          backgroundColor: 'rgba(217,143,149,0.14)',
+          fill: true,
+          tension: 0.35,
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#D98F95',
+          pointHoverBorderColor: '#FFFFFF',
+          pointHoverBorderWidth: 2,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0A0F1E',
+            titleFont: { family: 'DM Sans', size: 11, weight: '600' },
+            bodyFont:  { family: 'Playfair Display', size: 17 },
+            titleColor: 'rgba(246,241,230,0.50)',
+            bodyColor:  '#C9A227',
+            padding: 14,
+            cornerRadius: 4,
+            callbacks: { label: ctx => ' ' + fmt(ctx.raw) }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(217,207,184,0.45)' },
+            ticks: { font: { family: 'DM Sans', size: 12 }, color: 'rgba(10,15,30,0.88)', maxTicksLimit: 7, maxRotation: 0 },
+            border: { color: 'rgba(217,207,184,0.9)' }
+          },
+          y: {
+            grid: { color: 'rgba(217,207,184,0.45)' },
+            ticks: { font: { family: 'DM Sans', size: 12 }, color: 'rgba(10,15,30,0.88)', callback: v => fmtShort(v) },
+            border: { color: 'rgba(217,207,184,0.9)' }
+          }
+        }
+      }
+    });
+  }
+
+  function calculate() {
+    const curAge   = Math.min(64, Math.max(18,  parseFloat(document.getElementById('currentAge').value)         || 30));
+    const retAge   = Math.min(80, Math.max(curAge + 1, parseFloat(document.getElementById('retirementAge').value) || 60));
+    const rate     = parseFloat(document.getElementById('returnRate').value) || 7;
+    const invStart = Math.max(18, parseFloat(document.getElementById('investStartAge').value)   || 35);
+    const invAmt = sumAndDisplay(['invest-401k','invest-roth','invest-ira','invest-hsa','invest-brokerage','invest-other'], 'invest-total');
+
+    const exp = sumDiffAndDisplay(
+      ['exp-car-now','exp-streaming-now','exp-fitness-now','exp-delivery-now','exp-other-now'],
+      ['exp-car-up','exp-streaming-up','exp-fitness-up','exp-delivery-up','exp-other-up'],
+      'exp-total-diff', 'exp-total-context', 'Upgrade'
+    );
+    const housing = sumDiffAndDisplay(
+      ['housing-rent-now','housing-parking-now','housing-utilities-now','housing-other-now'],
+      ['housing-rent-up','housing-parking-up','housing-utilities-up','housing-other-up'],
+      'housing-total-diff', 'housing-total-context', 'Upgrade'
+    );
+    const creep = sumDiffAndDisplay(
+      ['creep-dining-now','creep-coffee-now','creep-shopping-now','creep-travel-now','creep-other-now'],
+      ['creep-dining-up','creep-coffee-up','creep-shopping-up','creep-travel-up','creep-other-up'],
+      'creep-total-diff', 'creep-total-context', 'Could spend'
+    );
+
+    const years = retAge - curAge;
+
+    const expFV     = fv(exp,     rate, years);
+    const housingFV = fv(housing, rate, years);
+    const creepFV   = fv(creep,   rate, years);
+    const delayFV   = delayAt(invAmt, rate, retAge, invStart);
+    const total     = expFV + housingFV + creepFV + delayFV;
+
+    document.getElementById('totalGap').textContent             = total > 0 ? fmt(total) : '$0';
+    document.getElementById('retirementAgeDisplay').textContent = retAge;
+
+    const maxFV = Math.max(expFV, delayFV, housingFV, creepFV, 1);
+    const items = [
+      { name: 'Monthly recurring costs',               value: expFV },
+      { name: 'Investing delay (vs. starting at 25)',  value: delayFV },
+      { name: 'Housing upgrade',                        value: housingFV },
+      { name: 'Lifestyle creep',                        value: creepFV },
+    ];
+
+    const maxItem = items.reduce((a, b) => b.value > a.value ? b : a);
+
+    document.getElementById('breakdown').innerHTML = items.map(it => {
+      const isHighlight = it === maxItem && it.value > 0;
+      return `
+        <div class="breakdown-row">
+          <div class="breakdown-meta">
+            <span class="breakdown-name">${it.name}</span>
+            <span class="breakdown-num${isHighlight ? ' breakdown-num--highlight' : ''}">${fmt(it.value)}</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill${isHighlight ? ' bar-fill--highlight' : ''}" style="width:${((it.value / maxFV) * 100).toFixed(1)}%"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('chartFrom').textContent = curAge;
+    document.getElementById('chartTo').textContent   = retAge;
+
+    const step = Math.max(1, Math.floor(years / 24));
+    const labels = [], data = [];
+    for (let y = 0; y <= years; y += step) {
+      const atAge = curAge + y;
+      labels.push(`Age ${atAge}`);
+      data.push(Math.round(
+        fv(exp,     rate, y) +
+        fv(housing, rate, y) +
+        fv(creep,   rate, y) +
+        delayAt(invAmt, rate, atAge, invStart)
+      ));
+    }
+    if (labels[labels.length - 1] !== `Age ${retAge}`) {
+      labels.push(`Age ${retAge}`);
+      data.push(Math.round(total));
+    }
+
+    chart.data.labels           = labels;
+    chart.data.datasets[0].data = data;
+    chart.update('none');
+  }
+
+  document.getElementById('returnRate').addEventListener('input', function () {
+    document.getElementById('returnRateDisplay').textContent = this.value + '%';
+    calculate();
+  });
+
+  [
+    'currentAge','retirementAge','investStartAge',
+    'invest-401k','invest-roth','invest-ira','invest-hsa','invest-brokerage','invest-other',
+    'exp-car-now','exp-car-up','exp-streaming-now','exp-streaming-up',
+    'exp-fitness-now','exp-fitness-up','exp-delivery-now','exp-delivery-up',
+    'exp-other-now','exp-other-up',
+    'housing-rent-now','housing-rent-up','housing-parking-now','housing-parking-up',
+    'housing-utilities-now','housing-utilities-up','housing-other-now','housing-other-up',
+    'creep-dining-now','creep-dining-up','creep-coffee-now','creep-coffee-up',
+    'creep-shopping-now','creep-shopping-up','creep-travel-now','creep-travel-up',
+    'creep-other-now','creep-other-up'
+  ].forEach(id => document.getElementById(id).addEventListener('input', calculate));
+
+  initChart();
+  calculate();
+</script>
+</body>
+</html>

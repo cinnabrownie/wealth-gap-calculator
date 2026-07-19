@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Wealth Gap Calculator — Money with Simone</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2216%22%20fill%3D%22%230A0F1E%22/%3E%3Ctext%20x%3D%2216.5%22%20y%3D%2222.5%22%20font-family%3D%22Georgia%2C%20%27Times%20New%20Roman%27%2C%20serif%22%20font-size%3D%2219%22%20font-weight%3D%22700%22%20fill%3D%22%23C9A227%22%20text-anchor%3D%22middle%22%3ES%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
@@ -165,6 +166,8 @@
       border-bottom: 3px solid var(--qc-rule);
     }
 
+    @media (max-width: 520px) { .section { padding: 40px 0 40px 16px; } }
+
     /* ── Section header ── */
     .section-head {
       display: flex;
@@ -176,6 +179,8 @@
       margin-left: -28px;
       padding-left: 25px;
     }
+
+    @media (max-width: 520px) { .section-head { margin-left: -16px; padding-left: 13px; } }
 
     .section--start .section-head { border-left-color: var(--qc-teal); }
     .section--d1 .section-head    { border-left-color: var(--qc-terracotta); }
@@ -384,6 +389,13 @@
       overflow: hidden;
       background: var(--qc-cream);
       transition: border-color 0.15s;
+    }
+
+    @media (max-width: 520px) {
+      .ledger-row { flex-wrap: wrap; row-gap: 10px; padding: 14px 0; }
+      .ledger-label-group { flex-basis: 100%; }
+      .ledger-inputs { margin-left: auto; }
+      .ledger-input { width: 84px; }
     }
 
     .ledger-input:focus-within { border-color: var(--qc-aqua); background: #fff; }
@@ -693,14 +705,54 @@
       text-align: center;
     }
 
+    @media (max-width: 520px) { .cta { padding: 40px 24px; } }
+
+    /* ── Results actions (reset / copy / share) ── */
+    .results-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 13.5px;
+      cursor: pointer;
+      border: 1.5px solid var(--qc-teal);
+      background: transparent;
+      color: var(--qc-teal-deep);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .action-btn:hover { background: var(--qc-teal); color: #ffffff; }
+
+    .action-btn--primary { background: var(--qc-teal); color: #ffffff; }
+    .action-btn--primary:hover { background: var(--qc-teal-deep); border-color: var(--qc-teal-deep); }
+
+    .action-btn--ghost {
+      border-color: transparent;
+      color: rgba(10, 15, 30, 0.55);
+    }
+
+    .action-btn--ghost:hover { background: rgba(10, 15, 30, 0.06); color: var(--qc-navy); }
+
+    @media (max-width: 520px) { .action-btn { flex: 1 1 auto; justify-content: center; } }
+
     .cta-eyebrow {
       display: inline-block;
       font-family: 'Kalam', cursive;
       font-weight: 700;
-      font-size: 21px;
+      font-size: 28px;
       letter-spacing: 0.01em;
       color: #ffffff;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .cta h2 {
@@ -1210,6 +1262,12 @@
         <canvas id="chart"></canvas>
       </div>
     </div>
+
+    <div class="results-actions">
+      <button type="button" class="action-btn action-btn--primary" id="shareBtn">Share your results</button>
+      <button type="button" class="action-btn" id="copyBtn">Copy results</button>
+      <button type="button" class="action-btn action-btn--ghost" id="resetBtn">Reset calculator</button>
+    </div>
   </div>
 
   <span class="hairline"></span>
@@ -1217,9 +1275,9 @@
   <!-- CTA -->
   <div class="cta">
     <p class="cta-eyebrow">Money with Simone</p>
-    <h2>Subscribe if this is worth knowing.</h2>
+    <h2>Subscribe if this was worth knowing.</h2>
     <p>New videos on wealth, decisions, and the long arc — clear, no-hype, and worth your time.</p>
-    <a href="#" class="btn">Subscribe on YouTube</a>
+    <a href="https://www.youtube.com/@MoneyWithSimone" class="btn" target="_blank" rel="noopener noreferrer">Subscribe for more wealth breakdowns</a>
     <span class="cta-secondary">Newsletter coming soon.</span>
   </div>
 
@@ -1440,6 +1498,62 @@
     'creep-shopping-now','creep-shopping-up','creep-travel-now','creep-travel-up',
     'creep-other-now','creep-other-up'
   ].forEach(id => document.getElementById(id).addEventListener('input', calculate));
+
+  function buildShareText() {
+    const gap = document.getElementById('totalGap').textContent;
+    const age = document.getElementById('retirementAgeDisplay').textContent;
+    return 'I was surprised by my Wealth Gap: ' + gap + ' by age ' + age + '\n' +
+      'Small money decisions can become huge over time.\n' +
+      'See yours with the Money with Simone Wealth Gap Calculator:\n' +
+      window.location.href;
+  }
+
+  function legacyCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    return Promise.resolve();
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).catch(() => legacyCopy(text));
+    }
+    return legacyCopy(text);
+  }
+
+  function flashButtonLabel(btn, label) {
+    const original = btn.textContent;
+    btn.textContent = label;
+    btn.disabled = true;
+    setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1800);
+  }
+
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    document.querySelectorAll('.page input').forEach(el => { el.value = el.defaultValue; });
+    document.getElementById('returnRateDisplay').textContent = document.getElementById('returnRate').value + '%';
+    calculate();
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', function () {
+    const btn = this;
+    copyToClipboard(buildShareText()).then(() => flashButtonLabel(btn, 'Copied'));
+  });
+
+  document.getElementById('shareBtn').addEventListener('click', function () {
+    const btn = this;
+    const text = buildShareText();
+    if (navigator.share) {
+      navigator.share({ text: text }).catch(() => {});
+    } else {
+      copyToClipboard(text).then(() => flashButtonLabel(btn, 'Copied — paste to share'));
+    }
+  });
 
   initChart();
   calculate();

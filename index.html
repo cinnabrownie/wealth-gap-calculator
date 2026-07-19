@@ -714,6 +714,7 @@
       justify-content: center;
       gap: 12px;
       margin-top: 12px;
+      margin-bottom: 56px;
     }
 
     .action-btn {
@@ -726,33 +727,37 @@
       font-size: 13.5px;
       cursor: pointer;
       border: 1.5px solid var(--qc-teal);
-      background: transparent;
+      background: rgba(31, 138, 153, 0.10);
       color: var(--qc-teal-deep);
-      transition: background 0.15s, color 0.15s;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
 
     .action-btn:hover { background: var(--qc-teal); color: #ffffff; }
+
+    .action-btn:focus-visible { outline: 2px solid var(--qc-gold); outline-offset: 2px; }
 
     .action-btn--primary { background: var(--qc-teal); color: #ffffff; }
     .action-btn--primary:hover { background: var(--qc-teal-deep); border-color: var(--qc-teal-deep); }
 
     .action-btn--ghost {
-      border-color: transparent;
-      color: rgba(10, 15, 30, 0.55);
+      border-color: rgba(10, 15, 30, 0.28);
+      background: var(--qc-cream-soft);
+      color: rgba(10, 15, 30, 0.68);
     }
 
-    .action-btn--ghost:hover { background: rgba(10, 15, 30, 0.06); color: var(--qc-navy); }
+    .action-btn--ghost:hover { background: rgba(10, 15, 30, 0.08); color: var(--qc-navy); border-color: rgba(10, 15, 30, 0.35); }
 
     @media (max-width: 520px) { .action-btn { flex: 1 1 auto; justify-content: center; } }
 
     .cta-eyebrow {
       display: inline-block;
-      font-family: 'Kalam', cursive;
-      font-weight: 700;
-      font-size: 28px;
-      letter-spacing: 0.01em;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
       color: #ffffff;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .cta h2 {
@@ -1277,7 +1282,7 @@
     <p class="cta-eyebrow">Money with Simone</p>
     <h2>Subscribe if this was worth knowing.</h2>
     <p>New videos on wealth, decisions, and the long arc — clear, no-hype, and worth your time.</p>
-    <a href="https://www.youtube.com/@MoneyWithSimone" class="btn" target="_blank" rel="noopener noreferrer">Subscribe for more wealth breakdowns</a>
+    <a href="https://www.youtube.com/@MoneyWithSimone" class="btn" target="_blank" rel="noopener noreferrer">Subscribe For More Wealth Breakdowns</a>
     <span class="cta-secondary">Newsletter coming soon.</span>
   </div>
 
